@@ -20,10 +20,12 @@ git clone https://github.com/UtkarshVerma/esp-temp
 ```
 
 ## 2. Building the firmware
-Open the cloned repository directory in your CLI and run the following command. The device may either be **esp32** or **esp8266**.
+Open the cloned repository directory in your CLI and run the following command.
 ```
 mos build --arch <your device> 
 ```
+
+The device may either be **esp32** or **esp8266**.
 For example:
 ```
 mos build --arch esp32
@@ -84,16 +86,16 @@ To enable **OTA Mode**, the `Flash` or `Boot` button on the development board ha
 
 > The best way to check if the device has booted or not is by seeing the device logs via the `mos console` command.
 
-As a response, the device LED will start to **glow** on successful enabling of the OTA mode.
+As a response, a message will be displayed in the logs saying **OTA Mode on!**  and the device LED will start to **glow** on successful enabling of the OTA mode.
 
 ## `enableConv`
 This app has the facility to send temperature to Losant in either **Celsius** or **Fahrenheit**. By default, the temperature will be sent in **Celsius** but it may be changed to **Fahrenheit** by setting the `enableConv` value as `false` in the app code.
 
 
 ## `tempOffset`
-Since this app relies on the **internal temperature sensor** of ESP32/8266, which reads the temperature of the MCU, therefore the temperature readings are bound to be **off by a certain value** from the ambient temperature. To make the readings **approximately** equal to the ambient temperature, we may add/subtract a specific value from the readings. That additional value is the `tempOffset`.
+Since this app relies on the **internal temperature sensor** of ESP32/8266, which reads the temperature of the MCU, therefore the temperature readings are bound to be **off by a certain value** from the ambient temperature. To make the readings **approximately** equal to the ambient temperature, we may subtract a specific value from the readings. That additional value is the `tempOffset`.
 
-> The graph of MCU temperature and ambient temperature are almost alike if not for the additional MCU internal heat. The `tempOffset` value compensates for it and that is the core concept of this app.
+> The graph of MCU temperature and ambient temperature are almost alike if not for the upward shifting due to the additional MCU internal heat. The `tempOffset` value compensates for it and that is the core concept of this app.
 
 This app subtracts `tempOffset` value from the temperature readings so a positive value represents decrement and vice versa.
 
@@ -102,6 +104,4 @@ It is set to **17** by default.
 ## `minToSleep` 
 It is up to you to set the interval between to consistent temperature readings, or in other words, the period. `minToSleep` variable contains the value which decides the **sleep time** of the device, that is the amount of time(in minutes) after which it has to wake and send another temperature reading to Losant.
 
-It is set to **20** by default.
-
----
+It is set to **20** by default, meaning that a temperature reading will be sent to Losant every 20 minutes.
