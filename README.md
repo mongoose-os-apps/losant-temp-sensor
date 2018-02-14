@@ -1,8 +1,8 @@
-# Graphing Temperature on Losant with Mongoose OS 
+#  Sending ESP Temperature to Losant using Mongoose OS
 
 ![My Graph](/graph.png)
 
-This app lets you configure your device to publish its **temperature readings** to **Losant** via MQTT periodically. 
+This app lets you configure your device to publish its **temperature readings** to **Losant** via MQTT periodically. The above picture shows the graph of my ESP32 temperature readings recorded via this app.
 
 ## Tested Hardware
 - ESP32
@@ -10,38 +10,32 @@ This app lets you configure your device to publish its **temperature readings** 
 
 ---
 
-## Installation & Flashing
+# Installation & Flashing
 
 For installing this app, it is necessary that you already have the `mos` tool installed on your machine. If not, then do so by following the instructions given here: [mos Installation Guide](https://mongoose-os.com/software.html)
 
-**1. Clone the `esp-temp` app:**
+## 1. Cloning the `esp-temp` app
 ```
 git clone https://github.com/UtkarshVerma/esp-temp
 ```
 
----
-
-**2. Build the firmware:**
+## 2. Building the firmware
 Open the cloned repository directory in your CLI and run the following command. The device may either be **esp32** or **esp8266**.
 ```
 mos build --arch <your device> 
 ```
 For example:
 ```
-mos build --arch esp32 
+mos build --arch esp32
 ```
 
----
-
-**3. Flash your device:**
+## 3. Flashing the device
 Now flash your device using the below stated command.
 ```
 mos flash 
 ```
 
-----
-
-**4. Configure WiFi:**
+## 4. Configuring WiFi
 Configure WiFi on your device using the following command. Ignore '<' and '>'.
 ```
 mos wifi "<your WiFi SSID>" "<your WiFi password>"
@@ -51,45 +45,63 @@ For example:
 mos wifi "Home WiFi" "home@123"
 ```
 
----
+## 5. Setting up Losant
+To use this app, you are required to have a **device** as well as an **application** set up on Losant. To do so, you may refer to these Losant documentations:
 
-**5. Set up Losant:**
-To set up your losant account, log in and do the following:
-- Create an application.
-- Create a device and configure it.
-    - Create a device attribute of  data type **Number** and name it **temp**.
-- Create an **Access Key** for your application and store both **Access Key Token** and **Access Key Secret** in a safe place for later use.
+[Creating A Device](https://docs.losant.com/devices/overview/)
 
-That's it.
+[Generating Access Keys](https://docs.losant.com/applications/access-keys/)
 
----
+While creating the device, be sure to add a device attribute with the following properties:
+- **Name**: temp
+- **Data Type**: Number
 
-**5. Configure the MQTT connection to Losant:**
+## 6. Configuring the MQTT connection to Losant
 Set up the MQTT credentials on your Mongoose OS flashed device using the following command.
 ```
 mos config-set mqtt.client_id= <your Losant device id> \
   mqtt.user= <your Losant access key token> \
   mqtt.pass= <your Losant access key secret>
 ```  
-Since this app, that is `esp-temp`, has **deep sleep enabled** therefore we will have to first **disable deep sleep temporarily** to pass commands to the device. To do so:
+The **Device ID** can be obtained on Losant. 
+The **Access Key** and **Access Secret** can be obtained on Losant. If you don't already have one at your disposal, you may generate one by following the official instructions stated in the [Losant Docs](https://docs.losant.com/applications/access-keys/).
 
-- Execute the command `mos console` in your CLI and press **Reset** button of your device.
-- You should see the device logs. Then, when you feel that the device has booted up, press the **Flash** button of your device to enable **OTA mode** or in other words, **disable deep sleep**. On successful attempt, the internal LED will glow.
-- Now you can pass commands to the device until it is rebooted.
+Once these are set up, your device should now be sending data to Losant.
 
-Same goes for pushing the **OTA updates**.
+## 7. Additional Losant Set-up
+Once you've done all the above steps, you may use the temperature readings for doing anything by accessing the `temp` attribute values. I used them to plot a graph.
 
 ---
 
-**6. Create a Dashboard on Losant:**
-This step will allow you to graph the temperature readings of your device. So, create a new dashboard and add a **Time Series Graph** block to it. Then configure the block according to your needs. 
-For example, my graph has been set up in this manner:
-- **Data Type**: Historical
-- **Duration**:
-    - Time Range - 24 hours
-    - One point every 20 minutes
-- **Block Data**:
-    ![Block Data](/block-data.png)
+# Some App Features
+
+This app comes with some integrated features for usage convenience. They are as stated below:
+
+## `otaMode`
+
+Since this app, that is `esp-temp`, has **deep sleep enabled**, therefore passing commands via the console isn't possible as deep sleep is enabled within few seconds of booting. So, to make this app support **over the air** updates as well as quick code editing via the UI, an **OTA Mode** has been implemented which disables deep sleep mode for **one boot cycle**. 
+To enable **OTA Mode**, the `Flash` or `Boot` button on the development board has to be pressed right after the device has booted up. 
+
+> The best way to check if the device has booted or not is by seeing the device logs via the `mos console` command.
+
+As a response, the device LED will start to **glow** on successful enabling of the OTA mode.
+
+## `enableConv`
+This app has the facility to send temperature to Losant in either **Celsius** or **Fahrenheit**. By default, the temperature will be sent in **Celsius** but it may be changed to **Fahrenheit** by setting the `enableConv` value as `false` in the app code.
 
 
+## `tempOffset`
+Since this app relies on the **internal temperature sensor** of ESP32/8266, which reads the temperature of the MCU, therefore the temperature readings are bound to be **off by a certain value** from the ambient temperature. To make the readings **approximately** equal to the ambient temperature, we may add/subtract a specific value from the readings. That additional value is the `tempOffset`.
 
+> The graph of MCU temperature and ambient temperature are almost alike if not for the additional MCU internal heat. The `tempOffset` value compensates for it and that is the core concept of this app.
+
+This app subtracts `tempOffset` value from the temperature readings so a positive value represents decrement and vice versa.
+
+It is set to **17** by default.
+
+## `minToSleep` 
+It is up to you to set the interval between to consistent temperature readings, or in other words, the period. `minToSleep` variable contains the value which decides the **sleep time** of the device, that is the amount of time(in minutes) after which it has to wake and send another temperature reading to Losant.
+
+It is set to **20** by default.
+
+---
