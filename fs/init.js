@@ -31,29 +31,32 @@ RPC.call(RPC.LOCAL, 'Sys.GetInfo', null, function(resp, ud) {
 },null);
 
 //Toggle OTA mode on button press
-GPIO.set_button_handler(0, GPIO.PULL_UP, GPIO.INT_EDGE_NEG, 200, function() {
+GPIO.set_button_handler(0, GPIO.PULL_UP, GPIO.INT_EDGE_NEG, 200, function(){
   otaMode = !otaMode;
   print(otaMode ? "OTA Mode on!" : "OTA Mode off!");
 }, null);
 
 //Convert the temperature from Fahrenheit to Celsius
-function convTemp() {
+function convTemp(){
   return ( (5/9)*(ESP32.temp() - 32) - tempOffset); 
 }
 
 //Basic initialization function
-function init() {
+function init(){
   GPIO.set_mode(led, GPIO.MODE_OUTPUT);
   GPIO.toggle(led);
   print('Uptime:', Sys.uptime());
-  print('Current Temperature: ', (enableConv ?  convTemp(), 'Celsius' : (ESP32.temp() - tempOffset), 'Fahrenheit'));
+  if(enableConv)
+    print('Current Temperature: ',convTemp(),' Celsius');
+  if(!enableConv)
+    print('Current Temperature: ',(ESP32.temp()-tempOffset),' Fahrenheit');
 }
 
 //Read the temperature and return it in JSON format
 function getTemp() {
   return JSON.stringify({
-    data: {
-      temp:( enableConv ? convTemp() : ESP32.temp() )
+    data:{
+      temp:(enableConv?convTemp():ESP32.temp())
     }
   });
 }
