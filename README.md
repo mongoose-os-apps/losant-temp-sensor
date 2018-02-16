@@ -95,7 +95,7 @@ This app has the facility to send temperature to Losant in either **Celsius** or
 ## `tempOffset`
 Since this app relies on the **internal temperature sensor** of ESP32/8266, which reads the temperature of the MCU, therefore the temperature readings are bound to be **off by a certain value** from the ambient temperature. To make the readings **approximately** equal to the ambient temperature, we may subtract a specific value from the readings. That additional value is the `tempOffset`.
 
-> The graph of MCU temperature and ambient temperature are almost alike if not for the upward shifting due to the additional MCU internal heat. The `tempOffset` value compensates for it and that is the core concept of this app.
+> The graph of MCU temperature and ambient temperature versus time are almost alike if not for the upward shifting due to the additional MCU internal heat. The `tempOffset` value compensates for it and that is the core concept of this app for obtaining **approximate** temperature readings.
 
 This app subtracts `tempOffset` value from the temperature readings so a positive value represents decrement and vice versa.
 

@@ -23,7 +23,7 @@ let minToSleep = 20;
 let otaMode = false;
 
 //Set the temperature difference between your room and ESP32
-let tempOffset = 17;
+let tempOffset = 10;
 
 //Storing device info
 RPC.call(RPC.LOCAL, 'Sys.GetInfo', null, function(resp, ud) {
@@ -32,28 +32,26 @@ RPC.call(RPC.LOCAL, 'Sys.GetInfo', null, function(resp, ud) {
 
 //Toggle OTA mode on button press
 GPIO.set_button_handler(0, GPIO.PULL_UP, GPIO.INT_EDGE_NEG, 200, function(){
+  GPIO.set_mode(led, GPIO.MODE_OUTPUT);
   otaMode = !otaMode;
+  GPIO.write(led, otaMode);
   print(otaMode ? "OTA Mode on!" : "OTA Mode off!");
 }, null);
 
 //Convert the temperature from Fahrenheit to Celsius
 function convTemp(){
-  return ( (5/9)*(ESP32.temp() - 32) - tempOffset); 
+  return ((5/9)*(ESP32.temp() - 32) - tempOffset); 
 }
 
 //Basic initialization function
 function init(){
-  GPIO.set_mode(led, GPIO.MODE_OUTPUT);
-  GPIO.toggle(led);
-  print('Uptime:', Sys.uptime());
-  if(enableConv)
-    print('Current Temperature: ',convTemp(),' Celsius');
-  if(!enableConv)
-    print('Current Temperature: ',(ESP32.temp()-tempOffset),' Fahrenheit');
+  print("Uptime:", Sys.uptime()); 
+  print("Current Temperature:", (enableConv?convTemp():ESP32.temp()-tempOffset), enableConv?"Celsius":"Fahrenheit");
+  
 }
 
 //Read the temperature and return it in JSON format
-function getTemp() {
+function getTemp(){
   return JSON.stringify({
     data:{
       temp:(enableConv?convTemp():ESP32.temp())
@@ -62,7 +60,7 @@ function getTemp() {
 }
 
 //Deploy the message to Losant
-function sendTemp() {
+function sendTemp(){
   let message = getTemp();
   let ok = MQTT.pub(topic, message, 1);
   print('Published:', ok, topic, '->', message);
@@ -72,15 +70,15 @@ function sendTemp() {
 init();
 
 //MQTT and deep sleep
-MQTT.setEventHandler(function (conn, ev, edata) {
+MQTT.setEventHandler(function (conn, ev, edata){
     // Wait for MQTT.EV_CONNACK to ensure the mqtt connection is established
     if (MQTT.EV_CONNACK === ev) {
         print('=== MQTT event handler: got MQTT.EV_CONNACK');
         sendTemp();
         // Wait a moment to ensure the message has really been sent 
         // The timing might be different if using a WAN broker
-        Timer.set(1000, false, function () {
-          if( !otaMode ){
+        Timer.set(1000, false, function (){
+          if(!otaMode){
             if(device === "esp32")
               ESP32.deepSleep(minToSleep * 60 * 1000 * 1000);
             if(device === "esp8266")
