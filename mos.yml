@@ -1,39 +1,36 @@
-author: Utkarsh Verma	(utkarshverma@protonmail.com)
-description: App to send ESP32/8266 temperature readings to Losant periodically.
-# arch: PLATFORM
+author: Utkarsh Verma <utkarshverma@pm.me>
+description: Power-efficiently send ESP32/ESP8266 temperature sensor readings via MQTT periodically
 version: 1.0
-manifest_version:  2017-05-18
-platforms: [ esp32, esp8266 ]
+platform: esp32
+
 libs_version: ${mos.version}
 modules_version: ${mos.version}
 mongoose_os_version: ${mos.version}
 
+
 config_schema:
-  - ["i2c.enable", true]
-  - ["mqtt.server", "broker.losant.com:8883"]
+  - ["pins", "o", {title: "GPIO pin assignments"}]
+  - ["pins.button", i, 0, {title: "Pin to be used for button is GPIO"}]
+  - ["temperature", "o", {title: "Temperature related configurations"}]
+  - ["temperature.unit", "s", "Celsius", {title: "The temperature unit being used is: "}]
+  - ["temperature.offset", "i", 10, {title: "Temperature offset in minutes with respect to ambient temperature: "}]
+  - ["sleep_duration", "i", 0.5, {title: "Time in minutes after for which the device should (deep) sleep: "}]
   - ["mqtt.enable", true]
+  - ["mqtt.server", "broker.losant.com:8883"]
   - ["mqtt.ssl_ca_cert", "ca.pem"]
-
-conds:
-  - when: mos.platform == "esp32"
-    apply:
-      config_schema:
-        - ["pins.led", 21]
-        - ["pins.button", 0]
-
-  - when: mos.platform == "esp8266"
-    apply:
-      config_schema:
-        - ["pins.led", 2]
-        - ["pins.button", 0]
-
-tags:
-  - js
-  - cloud
-  - temperature
 
 filesystem:
   - fs
 
 libs:
-  - origin: https://github.com/mongoose-os-libs/js-demo-bundle
+  - origin: https://github.com/mongoose-os-libs/mjs
+  - origin: https://github.com/mongoose-os-libs/mqtt
+  - origin: https://github.com/mongoose-os-libs/wifi
+
+tags:
+  - cloud
+  - core
+  - js
+  - temperature
+
+manifest_version: 2017-05-18
