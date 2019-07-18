@@ -62,7 +62,7 @@ While creating the device, be sure to add a device attribute with the following 
 2. **Name**: offset, **Data Type**: Number
 3. **Name**: unit, **Data Type**: String
 
-### 6. Configue the MQTT connection to Losant
+### 6. Configure the MQTT connection to Losant
 Set up the MQTT credentials on your Mongoose OS flashed device using the following command.
 ```
 mos config-set device.id=<your Losant device id> \
