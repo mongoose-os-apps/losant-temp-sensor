@@ -1,30 +1,33 @@
 author: Utkarsh Verma <utkarshverma@pm.me>
-description: Power-efficiently send ESP32/ESP8266 temperature sensor readings via MQTT periodically
-version: 1.0
+description: Power-efficiently send ESP32/ESP8266 temperature sensor readings via MQTT periodically.
+version: 2.0
 platform: esp32
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
 mongoose_os_version: ${mos.version}
 
-
 config_schema:
-  - ["pins", "o", {title: "GPIO pin assignments"}]
-  - ["pins.button", i, 0, {title: "Pin to be used for button is GPIO"}]
   - ["temperature", "o", {title: "Temperature related configurations"}]
-  - ["temperature.unit", "s", "Celsius", {title: "The temperature unit being used is: "}]
-  - ["temperature.offset", "i", 10, {title: "Temperature offset in minutes with respect to ambient temperature: "}]
-  - ["sleep_duration", "i", 0.5, {title: "Time in minutes after for which the device should (deep) sleep: "}]
-  - ["mqtt.enable", true]
-  - ["mqtt.server", "broker.losant.com:8883"]
-  - ["mqtt.ssl_ca_cert", "ca.pem"]
+  - ["temperature.basis", "d", 24, {title: "Ambient temperature to act as reference:"}]
+  - ["temperature.unit", "s", "celsius", {title: "Temperature unit:"}]
+  - ["led", "o", {title: "LED configurations"}]
+  - ["led.gpio", "i", 2, {title: "Built-in LED GPIO:"}]
+  - ["sleep_duration", "d", 10, {title: "Time in minutes after for which the device should (deep) sleep:"}]
+  - ["mqtt.enable", "b", true, {title: "Enable MQTT service:"}]
+  - ["mqtt.server", "s", "broker.losant.com:8883", {title: "MQTT server to publish to."}]
+  - ["mqtt.ssl_ca_cert", "s", "ca.pem", {title: "Path to trusted CA certificate, relative to 'fs'."}]
 
 filesystem:
   - fs
 
 libs:
+  - origin: https://github.com/mongoose-os-libs/boards
+  - origin: https://github.com/mongoose-os-libs/ca-bundle
   - origin: https://github.com/mongoose-os-libs/mjs
   - origin: https://github.com/mongoose-os-libs/mqtt
+  - origin: https://github.com/mongoose-os-libs/rpc-service-config
+  - origin: https://github.com/mongoose-os-libs/rpc-uart
   - origin: https://github.com/mongoose-os-libs/wifi
 
 tags:
