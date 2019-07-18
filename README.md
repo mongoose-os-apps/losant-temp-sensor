@@ -1,19 +1,21 @@
 # losant-temp-sensor
+
 #### A [Mongoose OS](https://mongoose-os.com) app for sending temperature readings to [Losant](https://www.losant.com). 
 
-<center>![My Graph](/graph.png)</center>
+<p align="center"><img src="/graph.png" alt="Demo graph"/></p>
 
 This app lets you configure your device so that it can **publish its temperature readings to Losant via MQTT periodically**.  
 This app is good for you if you're a beginner with IoT since it *allows quick testing of [Mongoose OS](https://mongoose-os.com) and MQTT brokers*(here, [Losant](https://www.losant.com)). I emphasize on the **quick testing** part because *to get this app to work, **all you need is a USB cable and an ESP32 development board.***
-The above picture shows the graph of my ESP32 temperature readings recorded via this app and plotted on the server-side using [Losant's dashboards](https://docs.losant.com/dashboards/overview/).
+The above picture shows the graph of my ESP32 temperature readings recorded via this app and plotted on the server-side using [Losant's dashboards](https://docs.losant.com/dashboards/overview).
 
 ### Theory
 This app relies on the **internal temperature sensor** of IoT devices, which gives the temperature of the MCU.
-Throughout this app, **it has been assumned that the MCU temperature must be greater than the actual temperature by a fixed quantity**, an "offset" if you like. Therefore, *the app first finds this "offset" by initially comparing the MCU temperature with a [reference temperature]()(the actual ambient temperature) specified by the user at the time of flashing the firmware*. Once the offset has been calculated by the app, it will publish the approximated temperature(`mcu_temperature - offset`).
+Throughout this app, **it has been assumned that the MCU temperature must be greater than the actual temperature by a fixed quantity**, an "offset" if you like. Therefore, *the app first finds this "offset" by initially comparing the MCU temperature with a [reference temperature](#temperaturebasis)(the actual ambient temperature) specified by the user at the time of flashing the firmware*. Once the offset has been calculated by the app, it will publish the approximated temperature(`mcu_temperature - offset`).
 Since the device simply repeats the cycle in roughly the same time every time and  then sleeps, therefore variations get minimised and the approximated temperature resembles the ambient temperatue.
 
 ### Supported Hardware
 - ESP32
+
 ---
 
 ## Installation
@@ -41,13 +43,14 @@ For example:
 ```
 mos wifi "Home WiFi" "home@123"
 ```
+
 ### 4. Configure the app
 This app requires a little configuration before using to suit the user. The configurations can be made to the app using the `mos config-set` command.
 ```bash
 mos config-set temperature.basis=<basis temperature> \
-    temperature.unit="<temperature unit>" \
+    temperature.unit="<temperature unit>"
 ```
-You can also customize the app to more extent through the variables documented below in [App Configuration]() section.
+You can also customize the app to more extent through the variables documented below in [App Configuration](#app-configuration) section.
 
 ### 5. Set up Losant
 To use this app, you are required to have a **device** as well as an **application** set up on Losant. To do so, you may refer to these Losant documentations:
@@ -55,19 +58,17 @@ To use this app, you are required to have a **device** as well as an **applicati
 - [Generating Access Keys](https://docs.losant.com/applications/access-keys/)
 
 While creating the device, be sure to add a device attribute with the following properties:
-1. **Name**: temp
-   **Data Type**: Number
-2. **Name**: offset
-   **Data Type**: Number
-3. **Name**: unit
-   **Data Type**: String
+1. **Name**: temperature, **Data Type**: Number
+2. **Name**: offset, **Data Type**: Number
+3. **Name**: unit, **Data Type**: String
 
 ### 6. Configue the MQTT connection to Losant
 Set up the MQTT credentials on your Mongoose OS flashed device using the following command.
 ```
-mos config-set mqtt.client_id= <your Losant device id> \
-  mqtt.user= <your Losant access key > \
-  mqtt.pass= <your Losant access secret>
+mos config-set device.id=<your Losant device id> \
+  mqtt.client_id=<your Losant device id> \
+  mqtt.user=<your Losant access key > \
+  mqtt.pass=<your Losant access secret>
 ```  
 The **Device ID** can be obtained on Losant under the **Devices** section of your app.
 The **Access Key** and **Access Secret** can be obtained on Losant. If you don't already have one at your disposal, you may generate one by following the official instructions stated in the [Losant Docs](https://docs.losant.com/applications/access-keys/).
@@ -75,17 +76,18 @@ The **Access Key** and **Access Secret** can be obtained on Losant. If you don't
 Once these are set up, your device should now be sending data to Losant.
 
 ### 7. Additional Losant Set-up
-Once you've done all the above steps, you may use the temperature readings for doing anything by accessing the attributes of your device(e.g. temp). I used the `temp` attribute to plot a graph.
+Once you've done all the above steps, you may use the temperature readings for doing anything by accessing the attributes of your device(e.g. temperature). I used the `temperature` attribute to plot a graph using [Losant's dashboards](https://docs.losant.com/dashboards/overview).
 
 ---
 
 ## App Configuration
 Some configurations have to be set for the app to work optimally. They are as stated below:
 
-### `Edit mode`
+### Edit mode
 
-Since `losant-temp-app` goes into **deep sleep** soon after publishing data to MQTT broker, therefore passing commands via the console isn't possible as the device shuts off its UART connection. This is where `edit mode` steps in. It is a mode that this app has in which **deep sleep is disabled for one boot cycle**.
-This mode can be activated/deactivated by pressing the `Flash` or `Boot` after the device has finished booting. The built-in LED indicates whether this mode is on or off.  
+Since `losant-temp-app` goes into **deep sleep** soon after publishing data to MQTT broker, therefore passing commands via the console isn't possible as the device shuts off its UART connection. This is where **edit mode** steps in. It is a mode that this app has in which **deep sleep is disabled for one boot cycle**.
+This mode can be activated/deactivated by pressing the `Flash` or `Boot` button after the device has finished booting. The built-in LED indicates whether this mode is on or off.
+**This mode must be turned on if you wish to configure the app after setting up WiFi and MQTT.**
 
 > The best way to check if the device has booted or not is by seeing the device logs using the `mos console` command.
 
@@ -152,4 +154,3 @@ To specify this key, use this command:
 mos config-set button.hasPullUp=false
 ```
 If not specified by the user, this key **defaults to a value recommended by Mongoose OS for your board**. Therefore it is better to leave this key unspecified if you haven't modified the `button.gpio` key.
-
