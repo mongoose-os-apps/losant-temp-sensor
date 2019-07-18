@@ -85,7 +85,7 @@ Some configurations have to be set for the app to work optimally. They are as st
 
 ### Edit mode
 
-Since `losant-temp-app` goes into **deep sleep** soon after publishing data to MQTT broker, therefore passing commands via the console isn't possible as the device shuts off its UART connection. This is where **edit mode** steps in. It is a mode that this app has in which **deep sleep is disabled for one boot cycle**.
+Since `losant-temp-sensor` app goes into **deep sleep** soon after publishing data to MQTT broker, therefore passing commands via the console isn't possible as the device shuts off its UART connection. This is where **edit mode** steps in. It is a mode that this app has in which **deep sleep is disabled for one boot cycle**.
 This mode can be activated/deactivated by pressing the `Flash` or `Boot` button after the device has finished booting. The built-in LED indicates whether this mode is on or off.
 **This mode must be turned on if you wish to configure the app after setting up WiFi and MQTT.**
 
