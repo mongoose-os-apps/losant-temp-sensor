@@ -4,7 +4,7 @@
 
 <p align="center"><img src="/graph.png" alt="Demo graph"/></p>
 
-This app lets you configure your device so that it can **publish its temperature readings to Losant via MQTT periodically**.  
+This app lets you configure your device so that it can **publish its temperature readings to Losant via MQTT periodically** and **power efficiently** by utilizing the deep sleep feature of ESP32.  
 This app is good for you if you're a beginner with IoT since it *allows quick testing of [Mongoose OS](https://mongoose-os.com) and MQTT brokers*(here, [Losant](https://www.losant.com)). I emphasize on the **quick testing** part because *to get this app to work, **all you need is a USB cable and an ESP32 development board.***
 The above picture shows the graph of my ESP32 temperature readings recorded via this app and plotted on the server-side using [Losant's dashboards](https://docs.losant.com/dashboards/overview).
 
